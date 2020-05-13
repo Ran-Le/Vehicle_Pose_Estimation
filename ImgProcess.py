@@ -1,6 +1,6 @@
 import numpy as np
 from util import str2coords,coords2img
-from load import camera
+from math import sin, cos
 
 IMG_WIDTH = 1024
 IMG_HEIGHT = IMG_WIDTH // 16 * 5
