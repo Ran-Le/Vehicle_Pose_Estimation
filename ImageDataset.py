@@ -1,4 +1,4 @@
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 import cv2
 import numpy as np
 from util import car_center
@@ -15,7 +15,7 @@ class ImageDataset(Dataset):
     def __getitem__(self, item):
         idx = item.tolist()
         img_id, labels = self.data.to_numpy()[idx]
-        img_name = self.root + img_id
+        img_name = self.root + img_id + '.jpg'
         img = cv2.imread(img_name)
         img = np.rollaxis(img, 2, 0)
         center, center_far = car_center(img, labels)
