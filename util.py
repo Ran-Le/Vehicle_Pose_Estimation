@@ -40,3 +40,4 @@ def euler2mat(yaw, pitch, roll):
                   [sin(roll), cos(roll), 0],
                   [0, 0, 1]])
     return y.dot(p.dot(r))
+

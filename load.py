@@ -24,10 +24,8 @@ def train_data(filename):
 
 
 
-
-
 # test
-idx = 0
+idx = 2
 data = train_data('train_small.csv')
 cameraMat = camera()
 # plt_car(cameraMat, data['PredictionString'][idx], data['ImageId'][idx])

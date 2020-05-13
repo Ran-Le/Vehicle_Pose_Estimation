@@ -39,7 +39,7 @@ def mark_car(img, coord, p, camera_mat):
 def plt_car(camera_mat, coord_str, img_id):
     # plot the car center with red dot
     plt.figure()
-    plt.imshow(plt.imread(PATH + 'train_images/' + img_id + '.jpg'))
+    plt.imshow(cv2.imread(PATH + 'train_images/' + img_id + '.jpg'))
     plt.scatter(*coords2img(coord_str, camera_mat), color='red', s=50)
     plt.show()
 
