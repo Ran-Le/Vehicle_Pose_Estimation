@@ -6,6 +6,10 @@ IMG_WIDTH = 1024
 IMG_HEIGHT = IMG_WIDTH // 16 * 5
 MODEL_SCALE = 8
 
+def rotate(x, angle):
+    x = x + angle
+    x = x - (x + np.pi) // (2 * np.pi) * 2 * np.pi
+    return x
 
 def carinfo_cleanup(regr_dict):
     for name in ['x', 'y', 'z']:
