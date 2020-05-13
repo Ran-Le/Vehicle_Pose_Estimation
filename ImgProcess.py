@@ -28,9 +28,9 @@ def car_center(img,labels,camera):
     car_pos = str2coords(labels)
     xs, ys = coords2img(labels,camera)
     for i in range(len(xs)):
-    	y=xs[i]
-    	x=ys[i]
-    	regr_dict=car_pos[i]
+        y=xs[i]
+        x=ys[i]
+        regr_dict=car_pos[i]
         x = (x - img.shape[0] // 2) * IMG_HEIGHT / (img.shape[0] // 2) / MODEL_SCALE
         x = np.round(x).astype('int')
         y = (y + img.shape[1] // 6) * IMG_WIDTH / (img.shape[1] * 4/3) / MODEL_SCALE
