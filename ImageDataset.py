@@ -1,7 +1,7 @@
 from torch.utils.data import Dataset
 import cv2
 import numpy as np
-from util import car_center
+from ImgProcess import car_center
 
 
 class ImageDataset(Dataset):
