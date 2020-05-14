@@ -2,6 +2,7 @@ import numpy as np
 from util import str2coords, coords2img
 from math import sin, cos
 
+# Compressed image info
 IMG_WIDTH = 1024
 IMG_HEIGHT = IMG_WIDTH // 16 * 5
 MODEL_SCALE = 8
@@ -16,23 +17,23 @@ def rotate(x, dx):
     return x
 
 
-def carinfo_cleanup(regr_dict):
+def carinfo_cleanup(pose):
     """
     scale down x, y, z to 1/100
     roll angle plus pi
     From:
-    [x,y,z,yaw,pitch,roll,id]
+    [id,x,y,z,yaw,pitch,roll]
     To:
     [x,y,z,yaw,pitch_sin,pitch_cos,roll]
     """
-    for name in ['x', 'y', 'z']:
-        regr_dict[name] = regr_dict[name] / 100
-    regr_dict['roll'] = rotate(regr_dict['roll'], np.pi)
-    regr_dict['pitch_sin'] = sin(regr_dict['pitch'])
-    regr_dict['pitch_cos'] = cos(regr_dict['pitch'])
-    regr_dict.pop('pitch')
-    regr_dict.pop('id')
-    return regr_dict
+    for i in ['x', 'y', 'z']:
+        pose[i] = pose[i] / 100
+    pose['roll'] = rotate(pose['roll'], np.pi)
+    pose['pitch_sin'] = sin(pose['pitch'])
+    pose['pitch_cos'] = cos(pose['pitch'])
+    pose.pop('pitch')
+    pose.pop('id')
+    return pose
 
 
 def car_center(img, labels, camera):
@@ -40,16 +41,16 @@ def car_center(img, labels, camera):
     Input:
     image, labels, camera info
     Output:
-    mask matrix, corresponding info matrix (7 layers)
+    mask matrix, pose info matrix (7 layers)
     """
     modelHeight = IMG_HEIGHT // MODEL_SCALE
     modelWidth = IMG_WIDTH // MODEL_SCALE
     mask = np.zeros([modelHeight, modelWidth], dtype='float32')
     # regr_names = ['x', 'y', 'z', 'yaw', 'pitch', 'roll']
     info = np.zeros([modelHeight, modelWidth, 7], dtype='float32')
-    car_pos = str2coords(labels)
+    car_pose = str2coords(labels)
     xs, ys = coords2img(labels, camera)
-    for i in range(len(car_pos)):
+    for i in range(len(car_pose)):
         x = (xs[i] + img.shape[1] // 6) * IMG_WIDTH / \
             (img.shape[1] * 4/3) / MODEL_SCALE
         # x = np.round(x).astype('int')
@@ -60,6 +61,7 @@ def car_center(img, labels, camera):
         y = int(round(y))
         if x >= 0 and x < modelWidth and y >= 0 and y < modelHeight:
             mask[y, x] = 1
-            regr_dict = carinfo_cleanup(car_pos[i])
+            regr_dict = carinfo_cleanup(car_pose[i])
+            #[pitch_cos,pitch_sin,roll,x,y,yaw,z]
             info[y, x] = [regr_dict[n] for n in sorted(regr_dict)]
     return mask, info
