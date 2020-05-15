@@ -75,7 +75,7 @@ def evaluate(epoch, history=None):
     print('Dev loss: {:.4f}'.format(loss))
 
 
-data = train_data_test('train_small.csv')
+data = train_data_test('train.csv')
 train_loader, validate_loader = load_data(data)
 epochs = 16
 model = MyUNet(8).to(device) # model name
