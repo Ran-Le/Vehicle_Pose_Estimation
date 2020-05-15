@@ -112,6 +112,7 @@ class MyUNet(nn.Module):
         self.outc = nn.Conv2d(256, n_classes, 1)
 
     def forward(self, x):
+        x = x.astype('float32')
         batch_size = x.shape[0]
         mesh1 = get_mesh(batch_size, x.shape[2], x.shape[3])
         x0 = torch.cat([x, mesh1], 1)
