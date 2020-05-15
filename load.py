@@ -36,24 +36,24 @@ def train_data_test(filename):
     train = pd.read_csv(PATH + filename)
     return train
 
-# test
-idx = 2
-t1 = time.time()
-data = train_data_test('train_small.csv')
-t2 = time.time()
-# cameraMat = camera()
-# # plt_car(cameraMat, data['PredictionString'][idx], data['ImageId'][idx])
-# image = plt.imread(PATH + 'train_images/' + data['ImageId'][idx] + '.jpg')
-# image = plt_cars(image, cameraMat, data['PredictionString'][idx])
-# plt.imshow(image)
-# plt.show()
+if __name__ == "__main__":
+    idx = 2
+    t1 = time.time()
+    data = train_data_test('train_small.csv')
+    t2 = time.time()
+    # cameraMat = camera()
+    # # plt_car(cameraMat, data['PredictionString'][idx], data['ImageId'][idx])
+    # image = plt.imread(PATH + 'train_images/' + data['ImageId'][idx] + '.jpg')
+    # image = plt_cars(image, cameraMat, data['PredictionString'][idx])
+    # plt.imshow(image)
+    # plt.show()
 
-train, validate = load_data(data)
-t3 = time.time()
-print(train)
-print(validate)
-print(t2-t1)
-print(t3-t2)
+    train, validate = load_data(data)
+    t3 = time.time()
+    print(train)
+    print(validate)
+    print(t2-t1)
+    print(t3-t2)
 
 
 
