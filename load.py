@@ -22,7 +22,7 @@ def camera():
     return camera_mat
 
 
-def load_data(input, filename, batch=4):
+def load_data(input, batch=4):
     train_dir = PATH + 'train_images/'
     train, validate = train_test_split(input, test_size=0.3, random_state=13)
     train_data = ImageDataset(train, train_dir)
@@ -48,7 +48,7 @@ t2 = time.time()
 # plt.imshow(image)
 # plt.show()
 
-train, validate = load_data(data, data['ImageId'][idx])
+train, validate = load_data(data)
 t3 = time.time()
 print(train)
 print(validate)
