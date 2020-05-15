@@ -89,5 +89,5 @@ for epoch in range(epochs):
     gc.collect()
     train(epoch, history)
     evaluate(epoch, history)
-    
+
 torch.save(model.state_dict(), './model.pth')
