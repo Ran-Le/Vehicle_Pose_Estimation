@@ -6,9 +6,10 @@ from ImgProcess import car_center
 
 
 class ImageDataset(Dataset):
-    def __init__(self, data, root):
+    def __init__(self, data, root, camera):
         self.data = data
         self.root = root
+        self.camera = camera
 
     def __len__(self):
         return len(self.data)
@@ -22,6 +23,6 @@ class ImageDataset(Dataset):
         img_name = self.root + img_id + '.jpg'
         img = cv2.imread(img_name)
         img = np.rollaxis(img, 2, 0)
-        center, center_far = car_center(img, labels)
+        center, center_far = car_center(img, labels, camera)
         center_far = np.rollaxis(center_far, 2, 0)
         return [img, center, center_far]
