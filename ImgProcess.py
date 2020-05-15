@@ -53,12 +53,12 @@ def car_center(img, labels, camera):
     for i in range(len(car_pose)):
         x = (xs[i] + img.shape[1] // 6) * IMG_WIDTH / \
             (img.shape[1] * 4/3) / MODEL_SCALE
-        # x = np.round(x).astype('int')
-        x = int(round(x))
+        x = np.round(x).astype('int')
+        # x = int(round(x))
         y = (ys[i] - img.shape[0] // 2) * IMG_HEIGHT / \
             (img.shape[0] // 2) / MODEL_SCALE
-        # y = np.round(y).astype('int')
-        y = int(round(y))
+        y = np.round(y).astype('int')
+        # y = int(round(y))
         if x >= 0 and x < modelWidth and y >= 0 and y < modelHeight:
             mask[y, x] = 1
             regr_dict = carinfo_cleanup(car_pose[i])
