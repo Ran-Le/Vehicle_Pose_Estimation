@@ -1,6 +1,7 @@
 from torch.utils.data import Dataset
 import cv2
 import numpy as np
+import torch
 from ImgProcess import car_center
 
 
@@ -13,7 +14,10 @@ class ImageDataset(Dataset):
         return len(self.data)
 
     def __getitem__(self, item):
-        idx = item.tolist()
+        if torch.is_tensor(item):
+            idx = item.tolist()
+        else:
+            idx = item
         img_id, labels = self.data.to_numpy()[idx]
         img_name = self.root + img_id + '.jpg'
         img = cv2.imread(img_name)
