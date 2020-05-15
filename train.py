@@ -5,6 +5,7 @@ import gc
 import pandas as pd
 from torch.optim import lr_scheduler
 from load import load_data, train_data_test
+from model import MyUNet
 PATH = 'Dataset/'
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
