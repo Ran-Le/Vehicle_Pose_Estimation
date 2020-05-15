@@ -1,5 +1,5 @@
 import torch
-import tqdm
+from tqdm import tqdm
 import torch.optim as optim
 import gc
 import pandas as pd
