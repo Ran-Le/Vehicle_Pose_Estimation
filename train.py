@@ -29,7 +29,7 @@ def criterion(output, mask, state):
     return loss
 
 
-def train_model(epoch, history=None):
+def train(epoch, history=None):
     model.train()
 
     for batch_idx, (img_batch, mask_batch, regr_batch) in enumerate(tqdm(train_loader)):
@@ -88,7 +88,7 @@ history = pd.DataFrame()
 for epoch in range(epochs):
     torch.cuda.empty_cache()
     gc.collect()
-    train_model(epoch, history)
+    train(epoch, history)
     evaluate(epoch, history)
 
 torch.save(model.state_dict(), './model.pth')
