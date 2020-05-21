@@ -13,10 +13,10 @@
 * Setup utility functions
 
 #### Update (05/15/20)
-* Finished data loading
+* Finish data loading
 
 #### Update (05/16/20)
-* Finished data preprocessing
+* Finish data preprocessing
 
 #### Update (05/18/20)
 * Remove mesh from baseline: No difference observed
@@ -41,4 +41,5 @@
 * Add cross validation
 * Other versions of EfficientNet
 * Better implementation of UNet
+* Try stacked hourglass architecture
 * Gaussian heatmap for CenterNet
