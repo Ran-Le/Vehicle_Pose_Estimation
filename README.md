@@ -1,11 +1,22 @@
 # CS231N_Project
-## 1.Data
-### 1) Create a folder in CS231N_Project called "Dataset"
-### 2) Move all data downloaded from https://www.kaggle.com/c/pku-autonomous-driving/data to "Dataset"
-### 3*) Currently try to create a small training dataset "train_small.csv" with fewer rows would be great --5/10/2020
 
+## 1.Setup
+* Create a folder in CS231N_Project called "Dataset"
+* Move all data downloaded from https://www.kaggle.com/c/pku-autonomous-driving/data to "Dataset"
 
 ## 2. Testing Logs
+
+#### Update (05/10/20)
+* Setup Google Cloud environment
+
+#### Update (05/12/20)
+* Setup utility functions
+
+#### Update (05/15/20)
+* Finished data loading
+
+#### Update (05/16/20)
+* Finished data preprocessing
 
 #### Update (05/18/20)
 * Remove mesh from baseline: No difference observed
