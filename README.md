@@ -25,3 +25,9 @@
 
 #### Update (05/21/2020)
 * Remove **left/right background zero padding**: No difference observed
+
+#### Todo:
+* Add cross validation
+* Other versions of EfficientNet
+* Better implementation of UNet
+* Gaussian heatmap for CenterNet
