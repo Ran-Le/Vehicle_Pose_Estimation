@@ -43,3 +43,5 @@
 * Better implementation of UNet
 * Try stacked hourglass architecture
 * Gaussian heatmap for CenterNet
+* Upconv+RecurrentConv
+* Dense U-Net
