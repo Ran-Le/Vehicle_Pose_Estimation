@@ -40,6 +40,7 @@
 #### Update (05/21/2020)
 * Remove **left/right background zero padding**: No difference observed
 * <s>Cross validation: negligible influence</s>
+* Replace **Upsample** with **ConvTranspose2d**: Less overfit, similar performance 
 
 #### Todo:
 * Other versions of EfficientNet: https://github.com/lukemelas/EfficientNet-PyTorch
