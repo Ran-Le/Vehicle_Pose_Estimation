@@ -41,9 +41,9 @@
 * Remove **left/right background zero padding**: No difference observed
 * <s>Cross validation: negligible influence</s>
 * Replace **Upsample** with **ConvTranspose2d**: Less overfit, similar performance 
+* <ins>EfficientNet versions (b0-b5): better performance but slower training, try later</ins>
 
 #### Todo:
-* Other versions of EfficientNet: https://github.com/lukemelas/EfficientNet-PyTorch
 * Better implementation of UNet
 * Try stacked hourglass architecture: https://arxiv.org/abs/1603.06937
 * Gaussian heatmap for CenterNet: https://arxiv.org/abs/1904.07850
