@@ -42,6 +42,10 @@
 * <s>Cross validation: negligible influence</s>
 * Replace **Upsample** with **ConvTranspose2d**: Less overfit, similar performance 
 * <ins>EfficientNet versions (b0-b5): better performance but slower training, try later</ins>
+* Replace **ConvTranspose2d** with **ConvTranspose2d-BatchNorm-ReLU**: better performance
+
+#### Update (05/21/2020)
+* Separate detection map and pose estimation map
 
 #### Todo:
 * Better implementation of UNet
