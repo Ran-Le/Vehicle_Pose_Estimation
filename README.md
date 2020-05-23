@@ -45,10 +45,10 @@
 * Replace **ConvTranspose2d** with **ConvTranspose2d-BatchNorm-ReLU**: better performance
 
 #### Update (05/21/2020)
-* Separate detection map and pose estimation map
+* Separate detection map and pose estimation map: slightly worse
 
 #### Todo:
-* Better implementation of UNet
+* change loss function
 * Try stacked hourglass architecture: https://arxiv.org/abs/1603.06937
 * Gaussian heatmap for CenterNet: https://arxiv.org/abs/1904.07850
 * Upconv+RecurrentConv: https://arxiv.org/abs/1802.06955
