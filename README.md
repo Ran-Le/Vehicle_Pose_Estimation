@@ -54,7 +54,11 @@
 #### Update (05/24/2020)
 * Add MultiRes Path: https://github.com/nibtehaz/MultiResUNet
 * Submission: Private 0.025 / Public 0.029
-* MultiRes Path: fix bugs, add ResPath shortcuts, increase stack number to 4, add BN layers, add epoch #, decrease learning rate
+* MultiRes Path: fix bugs, add ResPath shortcuts, increase stack number to 4, add BN layers, add epoch #, decrease learning rate, use **EfficientNet-B3**: clear overfit
+* Submission: Private 0.031 / Public 0.031
+
+#### Update (05/25/2020)
+* Reset learning hyperparameters, add L2 regularization, weight_decay=0.01
 
 #### Todo:
 * change loss function
