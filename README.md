@@ -59,6 +59,10 @@
 
 #### Update (05/25/2020)
 * Reset learning hyperparameters, add L2 regularization, weight_decay=0.01
+* Submission: Private 0.035 / Public 0.031
+* Replace **Double conv** with **MultiRes**
+* Simplify **ResPath**
+* Remove L2 regularization
 
 #### Todo:
 * change loss function
