@@ -47,6 +47,13 @@
 #### Update (05/21/2020)
 * Separate detection map and pose estimation map: slightly worse
 
+#### Update (05/23/2020)
+* Submission: Private 0.034 / Public 0.033
+* <s>L2 loss: nan error</s>
+
+#### Update (05/24/2020)
+* Add MultiRes Path: https://github.com/nibtehaz/MultiResUNet
+
 #### Todo:
 * change loss function
 * Try stacked hourglass architecture: https://arxiv.org/abs/1603.06937
