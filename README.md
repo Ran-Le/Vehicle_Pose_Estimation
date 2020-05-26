@@ -67,3 +67,4 @@
 * Clean up input data: Remove invalid images, scale up input resolution by 1.5
 * decrease batch size to 2 for memory issue
 * Base model dropout rate: 0.02
+* Prepare for augmentation
