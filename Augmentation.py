@@ -2,8 +2,9 @@ import imageio
 import imgaug.augmenters as iaa
 import pandas as pd
 import matplotlib
-import imgaug.random as iarandom
-%matplotlib inline
+# import imgaug.random as iarandom
+from numpy.random import Generator, PCG64
+# %matplotlib inline
 
 col_list = ["ImageId", "PredictionString"]
 df = pd.read_csv('train.csv', usecols=col_list)
@@ -14,7 +15,8 @@ for i in range(n):
     image_id = str(df['ImageId'][i]) + str('.jpg')
     prediction_string = df['PredictionString'][i]
     image = imageio.imread(image_id)
-    rng = iarandom.RNG(4)  # seed
+    # rng = iarandom.RNG(4)  # seed
+    rng = Generator(PCG64())
     flag_flip = float(rng.integers(0, 2))  # flag for yaw *= -1, roll *= -1
     scale = rng.integers(800, 1200) / 1000  # ratio for change position (x,y,z)
     image = imageio.imread(image_id)
