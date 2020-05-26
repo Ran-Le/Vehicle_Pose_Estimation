@@ -63,10 +63,12 @@
 * Replace **Double conv** with **MultiRes**
 * Simplify **ResPath**
 * Remove L2 regularization
+* Remove invalid images
+* Scale up input resolution by 2
+* Base model dropout rate: 0.02
 
 #### Todo:
 * change loss function
+* Drop out
 * Try stacked hourglass architecture: https://arxiv.org/abs/1603.06937
 * Gaussian heatmap for CenterNet: https://arxiv.org/abs/1904.07850
-* Upconv+RecurrentConv: https://arxiv.org/abs/1802.06955
-* Dense U-Net: https://arxiv.org/abs/1808.10848
