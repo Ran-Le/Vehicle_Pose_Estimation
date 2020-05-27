@@ -7,14 +7,14 @@ from numpy.random import Generator, PCG64
 # %matplotlib inline
 
 col_list = ["ImageId", "PredictionString"]
-df = pd.read_csv('./Dataset/train.csv', usecols=col_list)
+df = pd.read_csv('train.csv', usecols=col_list)
 drop_images = ['ID_1a5a10365', 'ID_4d238ae90.jpg', 'ID_408f58e9f', 'ID_bb1d991f6', 'ID_c44983aeb'] 
 df = df[~df['ImageId'].isin(drop_images)]
 n = len(df)  # number of images in train dataset
 train_aug = {}
 
 for i in range(n):
-    image_id = str('./Dataset/train_images/')+str(df['ImageId'][i]) + str('.jpg')
+    image_id = str(df['ImageId'][i]) + str('.jpg')
     prediction_string = df['PredictionString'][i]
     image = imageio.imread(image_id)
     # rng = iarandom.RNG(4)  # seed
@@ -59,4 +59,4 @@ for i in range(n):
     train_aug['PredictionString'].append(result)
 # write csv file
 df_aug = pd.DataFrame(train_aug, columns=['ImageId', 'PredictionString'])
-df_aug.to_csv(r'./Dataset/train_aug.csv', index=False, header=True)
+df_aug.to_csv(r'./train_aug.csv', index=False, header=True)
