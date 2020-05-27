@@ -57,7 +57,7 @@ for i in range(n):
         train_aug['PredictionString'] = []
     train_aug['ImageId'].append(filename_aug)
     train_aug['PredictionString'].append(result)
-    print(n)
+    print(i)
 # write csv file
 df_aug = pd.DataFrame(train_aug, columns=['ImageId', 'PredictionString'])
 df_aug.to_csv(r'./train_aug.csv', index=False, header=True)
