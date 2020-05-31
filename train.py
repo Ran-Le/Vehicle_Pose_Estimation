@@ -77,12 +77,10 @@ def evaluate(epoch, history=None):
             state_batch = state_batch.to(device)
 
             output = model(img_batch)
-            exist_loss_t, state_loss_t, loss_t = criterion(output, exist_batch, state_batch, size_average=False)
+            exist_loss_t, state_loss_t, loss_t = criterion(output, exist_batch, state_batch)
             exist_loss += exist_loss_t
             state_loss += state_loss_t
             loss += loss_t
-
-            loss += criterion(output, exist_batch, state_batch, size_average=False).data
 
     loss /= len(validate_loader.dataset)
 
