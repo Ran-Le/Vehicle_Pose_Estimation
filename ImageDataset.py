@@ -2,7 +2,7 @@ from torch.utils.data import Dataset
 import cv2
 import numpy as np
 import torch
-from ImgProcess import car_center
+from util import car_center
 
 IMG_WIDTH = 1024
 IMG_HEIGHT = IMG_WIDTH // 16 * 5
