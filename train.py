@@ -120,14 +120,14 @@ if __name__ == "__main__":
         train(epoch, history)
         evaluate(epoch, history)
 
-    torch.save(model.state_dict(), './model.pth')
+    # torch.save(model.state_dict(), './model.pth')
     history['train_loss'].iloc[100:].plot()
     plt.title('Training Loss')
 
     points_df = pd.DataFrame()
     for col in ['x', 'y', 'z', 'yaw', 'pitch', 'roll']:
         arr = []
-        for ps in train['PredictionString']:
+        for ps in data['PredictionString']:
             coords = str2coords(ps)
             arr += [c[col] for c in coords]
         points_df[col] = arr
