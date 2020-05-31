@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
     data = train_data_test('train.csv')
     train_loader, validate_loader, validate_data, validate = load_data(data)
-    epochs = 10
+    epochs = 2
     model = MyUNet(8).to(device) # model name
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=max(epochs, 10) * len(train_loader) // 3, gamma=0.1)
