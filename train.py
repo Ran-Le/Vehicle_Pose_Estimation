@@ -105,7 +105,7 @@ if __name__ == "__main__":
 
     cameraMat = camera()
 
-    data = train_data_test('train_small.csv')
+    data = train_data_test('train.csv')
     train_loader, validate_loader, validate_data, validate = load_data(data)
     epochs = 10
     model = MyUNet(8).to(device) # model name
