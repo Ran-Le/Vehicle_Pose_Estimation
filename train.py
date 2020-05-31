@@ -17,14 +17,14 @@ PATH = 'Dataset/'
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def criterion(output, mask, state):
+def criterion(output, mask, state, size_average=True):
     # output: result from nn;
     # mask: mask image given
     # state: state info for image points
     # existence
     pred = torch.sigmoid(output[:, 0]) # make probability of existence
     # binary classification loss
-    exist_loss = -mask * torch.log(pred + 1e-10) - (1.0-mask) * torch.log(1.0 - pred + 1e-10)
+    exist_loss = -mask * torch.log(pred + 1e-12) - (1.0-mask) * torch.log(1.0 - pred + 1e-12)
     exist_loss = exist_loss.mean(0).sum()
     # state when existence
     pred_state = output[:, 1:] # states for each point
@@ -34,6 +34,8 @@ def criterion(output, mask, state):
     # total loss = existence + state
     gamma = 5.0
     loss = exist_loss + gamma * state_loss
+    if not size_average:
+        loss *= output.shape[0]
     return exist_loss, state_loss, loss
 
 
@@ -77,7 +79,7 @@ def evaluate(epoch, history=None):
             state_batch = state_batch.to(device)
 
             output = model(img_batch)
-            exist_loss_t, state_loss_t, loss_t = criterion(output, exist_batch, state_batch)
+            exist_loss_t, state_loss_t, loss_t = criterion(output, exist_batch, state_batch, False)
             exist_loss += exist_loss_t
             state_loss += state_loss_t
             loss += loss_t
