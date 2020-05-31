@@ -34,7 +34,7 @@ def load_data(input, batch=4):
 
 
 def train_data_test(filename):
-    train = pd.read_csv(PATH + filename)
+    train = pd.read_csv(PATH + filename, nrows=400)
     return train
 
 if __name__ == "__main__":
