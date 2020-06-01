@@ -402,7 +402,7 @@ from torch.utils.data import DataLoader
 PATH = './Dataset/'
 os.listdir(PATH)
 
-debugging_mode=True
+debugging_mode=False
 if debugging_mode:
     train = pd.read_csv(PATH + 'train.csv', nrows=20)
     test = pd.read_csv(PATH + 'sample_submission.csv',nrows=2)
@@ -448,8 +448,10 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # device = torch.device("cpu")
 # print(device)
 
-# n_epochs = 10
-n_epochs = 2
+if debugging_mode:
+    n_epochs = 2
+else:
+    n_epochs = 10
 
 model = ConvMultiRes(8).to(device)
 # optimizer = optim.Adam(model.parameters(), lr=0.001)
@@ -476,8 +478,8 @@ import gc
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
-save_model = False
-make_predictions = False
+save_model = True
+make_predictions = True
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
