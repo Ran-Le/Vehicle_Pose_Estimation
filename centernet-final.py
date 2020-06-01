@@ -22,9 +22,15 @@ from math import sin, cos
 
 from efficientnet_pytorch import EfficientNet
 
-
 import gc
 
+##########################################################################
+# Load data
+##########################################################################
+
+import os
+import pandas as pd
+import numpy as np
 
 PATH = './Dataset/'
 os.listdir(PATH)
@@ -33,26 +39,15 @@ train = pd.read_csv(PATH + 'train.csv', nrows=40)
 # train = pd.read_csv(PATH + 'train.csv')
 test = pd.read_csv(PATH + 'sample_submission.csv')
 
-drop_images = ['ID_1a5a10365', 'ID_4d238ae90.jpg',
+# Remove damaged images from the dataset
+img_damaged = ['ID_1a5a10365', 'ID_4d238ae90.jpg',
                'ID_408f58e9f', 'ID_bb1d991f6', 'ID_c44983aeb']
-train = train[~train['ImageId'].isin(drop_images)]
+train = train[~train['ImageId'].isin(img_damaged)]
 
 camera_matrix = np.array([[2304.5479, 0,  1686.2379],
                           [0, 2305.8757, 1354.9849],
                           [0, 0, 1]], dtype=np.float32)
 camera_matrix_inv = np.linalg.inv(camera_matrix)
-
-train.head()
-
-
-def imread(path, fast_mode=False):
-    img = cv2.imread(path)
-    if not fast_mode and img is not None and len(img.shape) == 3:
-        img = np.array(img[:, :, ::-1])
-    return img
-
-img = imread(PATH + 'train_images/ID_8a6e65317' + '.jpg')
-IMG_SHAPE = img.shape
 
 
 def str2coords(s, names=['id', 'yaw', 'pitch', 'roll', 'x', 'y', 'z']):
@@ -184,6 +179,9 @@ def visualize(img, coords):
 
     return img
 
+##########################################################################
+# Image processing
+##########################################################################
 
 IMG_WIDTH = 1024
 # IMG_WIDTH = (1024*2)
@@ -318,6 +316,10 @@ def coords2str(coords, names=['yaw', 'pitch', 'roll', 'x', 'y', 'z', 'confidence
             s.append(str(c.get(n, 0)))
     return ' '.join(s)
 
+##########################################################################
+# Generate dataset
+##########################################################################
+
 
 class CarDataset(Dataset):
     """Car dataset."""
@@ -345,7 +347,7 @@ class CarDataset(Dataset):
             flip = np.random.randint(10) == 1
 
         # Read image
-        img0 = imread(img_name, True)
+        img0 = cv2.imread(img_name)
         img = preprocess_image(img0, flip=flip)
         img = np.rollaxis(img, 2, 0)
 
@@ -384,6 +386,9 @@ dev_loader = DataLoader(dataset=dev_dataset,
 test_loader = DataLoader(dataset=test_dataset,
                          batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
 
+##########################################################################
+# Setup model
+##########################################################################
 
 effnet_ver = 'b0'
 dropout_rate = 0.3
@@ -637,6 +642,9 @@ class MyUNet(nn.Module):
 # torch.Size([1, 8, 40, 128])
         return xout
 
+##########################################################################
+# Set up training
+##########################################################################
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # device = torch.device("cpu")
@@ -652,6 +660,10 @@ exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=max(
     n_epochs, 10) * len(train_loader) // 3, gamma=0.1)
 
 # model = torch.load('./model_test.pth')
+
+##########################################################################
+# Loss
+##########################################################################
 
 
 def criterion(prediction, mask, regr, size_average=True):
@@ -744,30 +756,9 @@ def evaluate_model(epoch, history=None):
     print('Dev mask loss: {:.4f}'.format(mask_loss))
     print('Dev regr loss: {:.4f}'.format(regr_loss))
 
-# def test_model(epoch, history=None):
-#     model.eval()
-#     loss = 0
-
-#     with torch.no_grad():
-#         for img_batch, mask_batch, regr_batch in test_loader:
-#             img_batch = img_batch.to(device)
-#             mask_batch = mask_batch.to(device)
-#             regr_batch = regr_batch.to(device)
-
-#             output = model(img_batch)
-
-# mask_loss,regr_loss,loss += criterion(output, mask_batch, regr_batch,
-# size_average=False).data
-
-#     loss /= len(test_loader.dataset)
-
-#     if history is not None:
-#         history.loc[epoch, 'test_loss'] = loss.cpu().numpy()
-
-#     print('Test loss: {:.4f}'.format(loss))
-#     print('Test mask loss: {:.4f}'.format(mask_loss))
-#     print('Test regr loss: {:.4f}'.format(regr_loss))
-
+##########################################################################
+# Training
+##########################################################################
 
 history = pd.DataFrame()
 
@@ -777,56 +768,40 @@ for epoch in range(n_epochs):
     train_model(epoch, history)
     evaluate_model(epoch, history)
 
-# torch.save(model.state_dict(), './model_test.pth')
-# torch.save(model, './model_test.pth')
+##########################################################################
+# Save model
+##########################################################################
 
+save_model = False
 
-series = history.dropna()['dev_loss']
+if save_model:
+    torch.save(model, './model_test.pth')
 
+make_predictions = False
 
-points_df = pd.DataFrame()
-for col in ['x', 'y', 'z', 'yaw', 'pitch', 'roll']:
-    arr = []
-    for ps in train['PredictionString']:
-        coords = str2coords(ps)
-        arr += [c[col] for c in coords]
-    points_df[col] = arr
+if make_predictions:
 
-zy_slope = LinearRegression()
-X = points_df[['z']]
-y = points_df['y']
-zy_slope.fit(X, y)
+    torch.cuda.empty_cache()
+    gc.collect()
 
+    torch.cuda.empty_cache()
+    predictions = []
 
-xzy_slope = LinearRegression()
-X = points_df[['x', 'z']]
-y = points_df['y']
-xzy_slope.fit(X, y)
+    test_loader = DataLoader(dataset=test_dataset,
+                             batch_size=BATCH_SIZE, shuffle=False, num_workers=4)
 
+    model.eval()
 
-torch.cuda.empty_cache()
-gc.collect()
+    for img, _, _ in tqdm(test_loader):
+        with torch.no_grad():
+            output = model(img.to(device))
+        output = output.data.cpu().numpy()
+        for out in output:
+            coords = extract_coords(out, threshold=0)
+            s = coords2str(coords)
+            predictions.append(s)
 
-
-torch.cuda.empty_cache()
-predictions = []
-
-test_loader = DataLoader(dataset=test_dataset,
-                         batch_size=BATCH_SIZE, shuffle=False, num_workers=4)
-
-model.eval()
-
-for img, _, _ in tqdm(test_loader):
-    with torch.no_grad():
-        output = model(img.to(device))
-    output = output.data.cpu().numpy()
-    for out in output:
-        coords = extract_coords(out, threshold=0)
-        s = coords2str(coords)
-        predictions.append(s)
-
-
-# test = pd.read_csv(PATH + 'sample_submission.csv')
-# test['PredictionString'] = predictions
-# test.to_csv('predictions.csv', index=False)
-# test.head()
+    test = pd.read_csv(PATH + 'sample_submission.csv')
+    test['PredictionString'] = predictions
+    test.to_csv('predictions.csv', index=False)
+    test.head()
