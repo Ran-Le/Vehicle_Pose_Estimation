@@ -504,8 +504,6 @@ test_loader = DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=Fa
 # In[17]:
 
 
-get_ipython().system('pip install efficientnet-pytorch')
-
 
 # In[18]:
 
@@ -1019,8 +1017,18 @@ def evaluate_model(epoch, history=None):
 # In[25]:
 
 
-get_ipython().run_cell_magic('time', '', 'import gc\n\n# plt.imshow(logits)\n# plt.show()\n\nhistory = pd.DataFrame()\n\nfor epoch in range(n_epochs):\n    torch.cuda.empty_cache()\n    gc.collect()\n    train_model(epoch, history)\n    evaluate_model(epoch, history)\n#     test_model(epoch, history)')
+import gc
 
+# plt.imshow(logits)
+# plt.show()
+
+history = pd.DataFrame()
+
+for epoch in range(n_epochs):
+    torch.cuda.empty_cache()
+    gc.collect()
+    train_model(epoch, history)
+    evaluate_model(epoch, history)
 
 # In[26]:
 
