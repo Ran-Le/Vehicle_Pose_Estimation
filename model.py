@@ -10,7 +10,7 @@ from efficientnet_pytorch import EfficientNet
 IMG_WIDTH = 1024
 IMG_HEIGHT = IMG_WIDTH // 16 * 5
 MODEL_SCALE = 8
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 effnet_ver = 'b0'
 dropout_rate = 0.3

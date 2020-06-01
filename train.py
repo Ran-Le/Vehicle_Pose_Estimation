@@ -116,7 +116,7 @@ if __name__ == "__main__":
     history = pd.DataFrame()
 
     for epoch in range(epochs):
-        # torch.cuda.empty_cache()
+        torch.cuda.empty_cache()
         gc.collect()
         train(epoch, history)
         evaluate(epoch, history)
