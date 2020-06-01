@@ -677,6 +677,7 @@ exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=max(
 # Loss
 ##########################################################################
 import torch
+from tqdm import tqdm
 
 def criterion(prediction, mask, regr, size_average=True):
     # Binary mask loss
