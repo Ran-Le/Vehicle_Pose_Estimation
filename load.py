@@ -34,12 +34,13 @@ def load_data(input, batch=4):
 
 
 def train_data_test(filename):
+    train = pd.read_csv(PATH + filename, nrows=400)
     return train
 
 if __name__ == "__main__":
     idx = 2
     t1 = time.time()
-    data = train_data_test('train_small.csv')
+    data = train_data_test('train.csv')
     t2 = time.time()
     cameraMat = camera()
     # plt_car(cameraMat, data['PredictionString'][idx], data['ImageId'][idx])
