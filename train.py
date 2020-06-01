@@ -119,7 +119,7 @@ if __name__ == "__main__":
         torch.cuda.empty_cache()
         gc.collect()
         train(epoch, history)
-        # evaluate(epoch, history)
+        evaluate(epoch, history)
 
     # torch.save(model.state_dict(), './model.pth')
     history['train_loss'].iloc[100:].plot()
