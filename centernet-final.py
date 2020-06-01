@@ -24,7 +24,7 @@ from torchvision import transforms, utils
 PATH = './Dataset/'
 os.listdir(PATH)
 
-train = pd.read_csv(PATH + 'train.csv',nrows=400)
+train = pd.read_csv(PATH + 'train.csv',nrows=40)
 # train = pd.read_csv(PATH + 'train.csv')
 test = pd.read_csv(PATH + 'sample_submission.csv')
 
@@ -63,9 +63,6 @@ def str2coords(s, names=['id', 'yaw', 'pitch', 'roll', 'x', 'y', 'z']):
     return coords
 
 inp = train['PredictionString'][0]
-print('Example input:\n', inp)
-print()
-print('Output:\n', str2coords(inp))
 
 
 
