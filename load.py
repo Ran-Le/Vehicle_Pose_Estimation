@@ -25,7 +25,7 @@ def camera():
 def load_data(input, batch=4):
     camera_mat = camera()
     train_dir = PATH + 'train_images/'
-    train, validate = train_test_split(input, test_size=0.3, random_state=13)
+    train, validate = train_test_split(input, test_size=0.01, random_state=13)
     train_data = ImageDataset(train, train_dir, camera_mat)
     validate_data = ImageDataset(validate, train_dir, camera_mat)
     train_loader = DataLoader(dataset=train_data, batch_size=batch, shuffle=True, num_workers=2)
@@ -34,7 +34,7 @@ def load_data(input, batch=4):
 
 
 def train_data_test(filename):
-    train = pd.read_csv(PATH + filename, nrows=400)
+    train = pd.read_csv(PATH + filename)#, nrows=400)
     return train
 
 if __name__ == "__main__":

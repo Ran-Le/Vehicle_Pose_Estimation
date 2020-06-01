@@ -14,7 +14,7 @@ from visualize import plt_cars_coords
 import cv2
 from visualize import plt_cars
 PATH = 'Dataset/'
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 
 def criterion(output, mask, state, size_average=True):
@@ -105,12 +105,12 @@ def imread(path, fast_mode=False):
 if __name__ == "__main__":
 
     cameraMat = camera()
-
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     data = train_data_test('train.csv')
     train_loader, validate_loader, validate_data, validate = load_data(data)
     epochs = 2
     model = MyUNet(8).to(device) # model name
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=0.001,weight_decay=0.01)
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=max(epochs, 10) * len(train_loader) // 3, gamma=0.1)
 
     history = pd.DataFrame()
