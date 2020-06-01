@@ -326,16 +326,16 @@ def get_mask_and_regr(img, labels, flip=False):
 # In[12]:
 
 
-img0 = imread(PATH + 'train_images/' + train['ImageId'][753] + '.jpg')
+# img0 = imread(PATH + 'train_images/' + train['ImageId'][753] + '.jpg')
 
 
-img = preprocess_image(img0)
+# img = preprocess_image(img0)
 
-mask, regr = get_mask_and_regr(img0, train['PredictionString'][753])
+# mask, regr = get_mask_and_regr(img0, train['PredictionString'][753])
 
-print('img.shape', img.shape, 'std:', np.std(img))
-print('mask.shape', mask.shape, 'std:', np.std(mask))
-print('regr.shape', regr.shape, 'std:', np.std(regr))
+# print('img.shape', img.shape, 'std:', np.std(img))
+# print('mask.shape', mask.shape, 'std:', np.std(mask))
+# print('regr.shape', regr.shape, 'std:', np.std(regr))
 
 # plt.figure(figsize=(16,16))
 # plt.title('Original image')
