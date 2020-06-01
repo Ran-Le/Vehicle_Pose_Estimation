@@ -5,56 +5,59 @@ import numpy as np
 import cv2
 from math import sin, cos
 
-
-
-
-def str2coords(s, names=['id', 'yaw', 'pitch', 'roll', 'x', 'y', 'z']):
+def label_to_list(s):
     '''
     Input:
-        s: PredictionString (e.g. from train dataframe)
-        names: array of what to extract from the string
+        s: Label strings
     Output:
-        list of dicts with keys from `names`
+        list of dicts with keys from labels
     '''
-    coords = []
-    for l in np.array(s.split()).reshape([-1, 7]):
-        coords.append(dict(zip(names, l.astype('float'))))
-        if 'id' in coords[-1]:
-            coords[-1]['id'] = int(coords[-1]['id'])
-    return coords
+    labels=['id', 'yaw', 'pitch', 'roll', 'x', 'y', 'z']
+    res = []
+    for i in np.array(s.split()).reshape([-1, 7]):
+        res.append(dict(zip(labels, i.astype('float'))))
+        if 'id' in res[-1]:
+            res[-1]['id'] = int(res[-1]['id'])
+    return res
 
-def rotate(x, angle):
-    x = x + angle
+def rotate(x, y):
+    '''
+    Input:
+        angles to add
+    Output:
+        angles from -pi to pi
+    '''
+    x = x + y
     x = x - (x + np.pi) // (2 * np.pi) * 2 * np.pi
     return x
 
 
 def get_img_coords(s):
     '''
-    Input is a PredictionString (e.g. from train dataframe)
-    Output is two arrays:
-        xs: x coordinates in the image (row)
-        ys: y coordinates in the image (column)
+    Input:
+        s: Label strings
+    Output:
+        xs: img row
+        ys: img col
     '''
     camera_matrix = np.array([[2304.5479, 0,  1686.2379],
                           [0, 2305.8757, 1354.9849],
                           [0, 0, 1]], dtype=np.float32)
 
-    coords = str2coords(s)
+    coords = label_to_list(s)
     xs = [c['x'] for c in coords]
     ys = [c['y'] for c in coords]
     zs = [c['z'] for c in coords]
     P = np.array(list(zip(xs, ys, zs))).T
-    img_p = np.dot(camera_matrix, P).T
-    img_p[:, 0] /= img_p[:, 2]
-    img_p[:, 1] /= img_p[:, 2]
-    img_xs = img_p[:, 0]
-    img_ys = img_p[:, 1]
-    img_zs = img_p[:, 2]  # z = Distance from the camera
-    return img_xs, img_ys
+    img_mat = np.dot(camera_matrix, P).T
+    img_mat[:, 0] /= img_mat[:, 2]
+    img_mat[:, 1] /= img_mat[:, 2]
+    row = img_mat[:, 0]
+    col = img_mat[:, 1]
+    return row, col
 
 
-def euler_to_Rot(yaw, pitch, roll):
+def euler_to_rot(yaw, pitch, roll):
     Y = np.array([[cos(yaw), 0, sin(yaw)],
                   [0, 1, 0],
                   [-sin(yaw), 0, cos(yaw)]])
@@ -65,15 +68,6 @@ def euler_to_Rot(yaw, pitch, roll):
                   [sin(roll), cos(roll), 0],
                   [0, 0, 1]])
     return np.dot(Y, np.dot(P, R))
-
-
-def draw_line(image, points):
-    color = (255, 0, 0)
-    cv2.line(image, tuple(points[0][:2]), tuple(points[3][:2]), color, 16)
-    cv2.line(image, tuple(points[0][:2]), tuple(points[1][:2]), color, 16)
-    cv2.line(image, tuple(points[1][:2]), tuple(points[2][:2]), color, 16)
-    cv2.line(image, tuple(points[2][:2]), tuple(points[3][:2]), color, 16)
-    return image
 
 
 def draw_line(image, points):
@@ -99,8 +93,8 @@ def draw_line(image, points):
 
 
 def draw_points(image, points):
-    for (p_x, p_y, p_z) in points:
-        cv2.circle(image, (p_x, p_y), int(800 / p_z), (255, 255, 0), -1)
+    for (x, y, z) in points:
+        cv2.circle(image, (x, y), int(800 / z), (255, 255, 0), -1)
 
     return image
 
@@ -124,7 +118,7 @@ def visualize(img, coords):
         Rt = np.eye(4)
         t = np.array([x, y, z])
         Rt[:3, 3] = t
-        Rt[:3, :3] = euler_to_Rot(yaw, pitch, roll).T
+        Rt[:3, :3] = euler_to_rot(yaw, pitch, roll).T
         Rt = Rt[:3, :]
         P = np.array([[x_l, -y_l, -z_l, 1],
                       [x_l, -y_l, z_l, 1],
@@ -157,55 +151,53 @@ IMG_HEIGHT = IMG_WIDTH // 16 * 5
 MODEL_SCALE = 8
 
 
-
-
-def _regr_preprocess(regr_dict, flip=False):
+def pose_preprocess(pose_dict, flip=False):
     if flip:
         for k in ['x', 'pitch', 'roll']:
-            regr_dict[k] = -regr_dict[k]
+            pose_dict[k] = -pose_dict[k]
     for name in ['x', 'y', 'z']:
-        regr_dict[name] = regr_dict[name] / 100
-    regr_dict['roll'] = rotate(regr_dict['roll'], np.pi)
-    regr_dict['pitch_sin'] = sin(regr_dict['pitch'])
-    regr_dict['pitch_cos'] = cos(regr_dict['pitch'])
-    regr_dict.pop('pitch')
-    regr_dict.pop('id')
-    return regr_dict
+        pose_dict[name] = pose_dict[name] / 100
+    pose_dict['roll'] = rotate(pose_dict['roll'], np.pi)
+    pose_dict['pitch_sin'] = sin(pose_dict['pitch'])
+    pose_dict['pitch_cos'] = cos(pose_dict['pitch'])
+    pose_dict.pop('pitch')
+    pose_dict.pop('id')
+    return pose_dict
 
 
-def _regr_back(regr_dict):
+def pose_reverse(pose_dict):
     for name in ['x', 'y', 'z']:
-        regr_dict[name] = regr_dict[name] * 100
-    regr_dict['roll'] = rotate(regr_dict['roll'], -np.pi)
+        pose_dict[name] = pose_dict[name] * 100
+    pose_dict['roll'] = rotate(pose_dict['roll'], -np.pi)
 
-    pitch_sin = regr_dict[
-        'pitch_sin'] / np.sqrt(regr_dict['pitch_sin']**2 + regr_dict['pitch_cos']**2)
-    pitch_cos = regr_dict[
-        'pitch_cos'] / np.sqrt(regr_dict['pitch_sin']**2 + regr_dict['pitch_cos']**2)
-    regr_dict['pitch'] = np.arccos(pitch_cos) * np.sign(pitch_sin)
-    return regr_dict
+    pitch_sin = pose_dict[
+        'pitch_sin'] / np.sqrt(pose_dict['pitch_sin']**2 + pose_dict['pitch_cos']**2)
+    pitch_cos = pose_dict[
+        'pitch_cos'] / np.sqrt(pose_dict['pitch_sin']**2 + pose_dict['pitch_cos']**2)
+    pose_dict['pitch'] = np.arccos(pitch_cos) * np.sign(pitch_sin)
+    return pose_dict
 
 
-def preprocess_image(img, flip=False):
+def img_preprocess(img, flip=False):
     img = img[img.shape[0] // 2:]
-    bg = np.ones_like(img) * img.mean(1, keepdims=True).astype(img.dtype)
-    bg = bg[:, :img.shape[1] // 6]
-    img = np.concatenate([bg, img, bg], 1)
+    side_padding = np.ones_like(img) * img.mean(1, keepdims=True).astype(img.dtype)
+    side_padding = side_padding[:, :img.shape[1] // 6]
+    img = np.concatenate([side_padding, img, side_padding], 1)
     img = cv2.resize(img, (IMG_WIDTH, IMG_HEIGHT))
     if flip:
         img = img[:, ::-1]
     return (img / 255).astype('float32')
 
 
-def get_mask_and_regr(img, labels, flip=False):
+def get_mask_and_pose(img, labels, flip=False):
     mask = np.zeros([IMG_HEIGHT // MODEL_SCALE, IMG_WIDTH //
                      MODEL_SCALE], dtype='float32')
     regr_names = ['x', 'y', 'z', 'yaw', 'pitch', 'roll']
-    regr = np.zeros([IMG_HEIGHT // MODEL_SCALE, IMG_WIDTH //
+    pose = np.zeros([IMG_HEIGHT // MODEL_SCALE, IMG_WIDTH //
                      MODEL_SCALE, 7], dtype='float32')
-    coords = str2coords(labels)
+    coords = label_to_list(labels)
     xs, ys = get_img_coords(labels)
-    for x, y, regr_dict in zip(xs, ys, coords):
+    for x, y, pose_dict in zip(xs, ys, coords):
         x, y = y, x
         x = (x - img.shape[0] // 2) * IMG_HEIGHT / \
             (img.shape[0] // 2) / MODEL_SCALE
@@ -215,13 +207,13 @@ def get_mask_and_regr(img, labels, flip=False):
         y = np.round(y).astype('int')
         if x >= 0 and x < IMG_HEIGHT // MODEL_SCALE and y >= 0 and y < IMG_WIDTH // MODEL_SCALE:
             mask[x, y] = 1
-            regr_dict = _regr_preprocess(regr_dict, flip)
-            regr[x, y] = [regr_dict[n] for n in sorted(regr_dict)]
+            pose_dict = pose_preprocess(pose_dict, flip)
+            pose[x, y] = [pose_dict[n] for n in sorted(pose_dict)]
     if flip:
         mask = np.array(mask[:, ::-1])
-        regr = np.array(regr[:, ::-1])
+        pose = np.array(pose[:, ::-1])
 #     print(xs)
-    return mask, regr
+    return mask, pose
 
 def convert_3d_to_2d(x, y, z, fx=2304.5479, fy=2305.8757, cx=1686.2379, cy=1354.9849):
     return x * fx / z + cx, y * fy / z + cy
@@ -265,8 +257,8 @@ def extract_coords(prediction, flipped=False, threshold=0):
         ['x', 'y', 'z', 'yaw', 'pitch_sin', 'pitch_cos', 'roll'])
     coords = []
     for r, c in points:
-        regr_dict = dict(zip(col_names, regr_output[:, r, c]))
-        coords.append(_regr_back(regr_dict))
+        pose_dict = dict(zip(col_names, regr_output[:, r, c]))
+        coords.append(pose_reverse(pose_dict))
         coords[-1]['confidence'] = 1 / (1 + np.exp(-logits[r, c]))
         coords[-1]['x'], coords[-1]['y'], coords[-1]['z'] = optimize_xy(r, c,
                                                                         coords[-1]['x'],
@@ -318,11 +310,11 @@ class CarDataset(Dataset):
 
         # Read image
         img0 = cv2.imread(img_name)
-        img = preprocess_image(img0, flip=flip)
+        img = img_preprocess(img0, flip=flip)
         img = np.rollaxis(img, 2, 0)
 
         # Get mask and regression maps
-        mask, regr = get_mask_and_regr(img0, labels, flip=flip)
+        mask, regr = get_mask_and_pose(img0, labels, flip=flip)
         regr = np.rollaxis(regr, 2, 0)
 
         return [img, mask, regr]
@@ -467,12 +459,12 @@ class res_path(nn.Module):
         return x
 
 
-class up(nn.Module):
+class up_sampling(nn.Module):
     '''(Respath+ConvT)=>ResBlock '''
     '''in_ch1(ConvT),in_ch2(Respath)=>out_ch,dim_out==2*dim_in '''
 
     def __init__(self, in_ch1, in_ch2, out_ch):
-        super(up, self).__init__()
+        super(up_sampling, self).__init__()
         self.up = nn.ConvTranspose2d(
             in_ch1, in_ch1, 2, stride=2, padding=1, output_padding=1)
         self.bn = nn.BatchNorm2d(in_ch1)
@@ -521,11 +513,11 @@ class output_conv(nn.Module):
         return x
 
 
-class MyUNet(nn.Module):
+class ConvMultiRes(nn.Module):
     '''Mixture of previous classes'''
 
     def __init__(self, n_classes):
-        super(MyUNet, self).__init__()
+        super(ConvMultiRes, self).__init__()
         self.drop_rate = DROPOUT_RATE
         self.base_model = EfficientNet.from_pretrained(f"efficientnet-{EFFNET_VER}")
 #         self.base_model = effnet_dropout(drop_rate = self.drop_rate)
@@ -540,19 +532,19 @@ class MyUNet(nn.Module):
         self.mp = nn.MaxPool2d(2)
 
         if EFFNET_VER == 'b0':
-            self.up1 = up(1280, 1024, 512)
+            self.up1 = up_sampling(1280, 1024, 512)
         elif EFFNET_VER == 'b1':
-            self.up1 = up(1280, 1024, 512)
+            self.up1 = up_sampling(1280, 1024, 512)
         elif EFFNET_VER == 'b2':
-            self.up1 = up(1408, 1024, 512)
+            self.up1 = up_sampling(1408, 1024, 512)
         elif EFFNET_VER == 'b3':
-            self.up1 = up(1536, 1024, 512)
+            self.up1 = up_sampling(1536, 1024, 512)
         elif EFFNET_VER == 'b4':
-            self.up1 = up(1792, 1024, 512)
+            self.up1 = up_sampling(1792, 1024, 512)
         elif EFFNET_VER == 'b5':
-            self.up1 = up(2048, 1024, 512)
-#         self.up1 = up(1536,1024, 512)
-        self.up2 = up(512, 512, 256)
+            self.up1 = up_sampling(2048, 1024, 512)
+#         self.up1 = up_sampling(1536,1024, 512)
+        self.up2 = up_sampling(512, 512, 256)
 #         self.outc = nn.Conv2d(256, n_classes, 1)
         self.poseconv = output_conv(256, 1024, 7)
         self.detectionconv = output_conv(256, 256, 1)
@@ -685,6 +677,30 @@ def evaluate_model(epoch, history=None):
     print('Dev mask loss: {:.4f}'.format(mask_loss))
     print('Dev regr loss: {:.4f}'.format(regr_loss))
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ##########################################################################
 # Training
 ##########################################################################
@@ -755,7 +771,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # n_epochs = 10
 n_epochs = 2
 
-model = MyUNet(8).to(device)
+model = ConvMultiRes(8).to(device)
 # optimizer = optim.Adam(model.parameters(), lr=0.001)
 optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.01)
 exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=max(
@@ -780,8 +796,8 @@ import gc
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
-save_model = True
-make_predictions = True
+save_model = False
+make_predictions = False
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -794,7 +810,7 @@ if make_predictions:
     for col in ['x', 'y', 'z', 'yaw', 'pitch', 'roll']:
         arr = []
         for ps in train['PredictionString']:
-            coords = str2coords(ps)
+            coords = label_to_list(ps)
             arr += [c[col] for c in coords]
         points_df[col] = arr
 
