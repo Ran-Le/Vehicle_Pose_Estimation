@@ -18,19 +18,19 @@ dropout_rate = 0.3
 
 # dropout_rate = 0.0
 
-def set_dropout(model, drop_rate):
-    # source: https://discuss.pytorch.org/t/how-to-increase-dropout-rate-during-training/58107/4
-    for name, child in model.named_children():
-        if isinstance(child, torch.nn.Dropout):
-            child.p = drop_rate
-            print("name:", name)
-            print("children:\n", child)
+# def set_dropout(model, drop_rate):
+#     # source: https://discuss.pytorch.org/t/how-to-increase-dropout-rate-during-training/58107/4
+#     for name, child in model.named_children():
+#         if isinstance(child, torch.nn.Dropout):
+#             child.p = drop_rate
+#             print("name:", name)
+#             print("children:\n", child)
 
 
-def effnet_dropout(drop_rate):
-    base_model0 = EfficientNet.from_pretrained(f"efficientnet-{effnet_ver}")
-    set_dropout(base_model0, drop_rate)
-    return base_model0
+# def effnet_dropout(drop_rate):
+#     base_model0 = EfficientNet.from_pretrained(f"efficientnet-{effnet_ver}")
+#     set_dropout(base_model0, drop_rate)
+#     return base_model0
 
 
 class double_conv(nn.Module):
@@ -204,7 +204,8 @@ class MyUNet(nn.Module):
     def __init__(self, n_classes):
         super(MyUNet, self).__init__()
         self.drop_rate = dropout_rate
-        self.base_model = EfficientNet.from_pretrained(f"efficientnet-{effnet_ver}")
+        # self.base_model = EfficientNet.from_pretrained(f"efficientnet-{effnet_ver}")
+        self.base_model = EfficientNet.from_pretrained(f"efficientnet-b0")
         #         self.base_model = effnet_dropout(drop_rate = self.drop_rate)
         self.conv0 = double_conv(3, 64)
         self.conv1 = double_conv(64, 128)
