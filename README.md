@@ -5,66 +5,39 @@
 * Move all data downloaded from https://www.kaggle.com/c/pku-autonomous-driving/data to "Dataset"
 
 ## 2. Testing Logs
-
-#### Update (05/10/20)
-* Setup Google Cloud environment
-
-#### Update (05/12/20)
-* Setup utility functions
-
-#### Update (05/15/20)
-* Finish data loading
-
-#### Update (05/16/20)
-* Finish data preprocessing
-
-#### Update (05/18/20)
-* Remove mesh from baseline: No observable difference
-* <s>Test on **small dataset (400 iamges)**: Overfit</s>
-* Baseline: **EfficientNet(b0)+UNet+CenterNet**, bg padding, single conv
-  * EfficientNet: https://github.com/lukemelas/EfficientNet-PyTorch
-  * U-Net: https://arxiv.org/abs/1505.04597
-  * CenterNet: https://arxiv.org/abs/1904.07850
-
-#### Update (05/19/2020)
-* <s>Replace **Batchnorm** with **Maxpooling+Upsamping**: Significant increase of loss</s>
-* <s>Replace **Double conv** with **Conv**: worse performance</s>
-* <s>Separate validation and testing set, prepare for cross validation</s>
-* Red bounding box for better visualization
-
-
-#### Update (05/20/2020)
-* <s>Remove **Batchnorm** from **Double conv**: slightly worse</s>
-* Set random seed to 231 for easier comparison
-
 #### Update (05/21/2020)
-* Remove **background zero padding**: No observable difference
-* <s>Cross validation: negligible influence</s>
-* Replace **Upsample** with **ConvTranspose2d**: Less overfit, similar performance 
-* Easy transfer between EfficientNet versions (b0-b5): better performance but slower training
-* Replace **ConvTranspose2d** with **ConvTranspose2d-BatchNorm-ReLU**: better performance
-
-#### Update (05/22/2020)
-* Separate detection map and pose estimation map for implementation of CenterNet: slightly worse
+* Original CenterNet: 0.001
 
 #### Update (05/23/2020)
-* Setup submission mechanisms for model evaluation
+* Double Conv Setup
 * Submission: Private 0.034 / Public 0.033
-* <s>Replace L1 loss with L2 loss: nan error</s>
 
 #### Update (05/24/2020)
-* Implement MultiRes architecture: https://github.com/nibtehaz/MultiResUNet
+* Dense ResNet (3+5+7)
 * Submission: Private 0.025 / Public 0.029
-* MultiRes Path: fix bugs, add ResPath shortcuts, increase stack number to 4, add BN layers, add epoch #, decrease learning rate, use **EfficientNet-B3**: significant overfit
-* Submission: Private 0.031 / Public 0.031
 
 #### Update (05/25/2020)
-* Reset learning hyperparameters, add L2 regularization, weight_decay=0.01
-* Submission: Private 0.035 / Public 0.031
-* Replace **Double conv** with **MultiRes**
-* Simplify **ResPath**
-* Remove L2 regularization
-* Clean up input data: Remove invalid images, scale up input resolution by 1.5
-* decrease batch size to 2 for memory issue
-* Base model dropout rate: 0.02
-* Prepare for augmentation
+* 1.5X HD
+* Submission: Private 0.028 / Public 0.025
+* 2.0X HD
+* Submission: Private 0.021 / Public 0.020
+
+#### Update (05/26/2020)
+* Original ResNet
+* Submission: Private 0.028 / Public 0.025
+
+#### Update (05/27/2020)
+* Original ResNet + Dropout + L2 Reg
+* Submission: Private 0.031 / Public 0.030
+
+#### Update (05/28/2020)
+* Conv Encoder + MultiRes Decoder
+* Submission: Private 0.024 / Public 0.025
+
+#### Update (05/29/2020)
+* Combined 1+1+3+3 skip connection
+* Submission: Private 0.036 / Public 0.030
+
+#### Update (06/01/2020)
+* Finish transferring to python files
+* Submission: Private 0.034 / Public 0.033
