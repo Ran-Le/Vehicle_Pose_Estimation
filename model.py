@@ -235,6 +235,7 @@ class MyUNet(nn.Module):
         self.detectionconv = output_conv(256, 256, 1)
 
     def forward(self, x):
+        print("1:", x)
         # torch.Size([1, 3, 320, 1024])
         batch_size = x.shape[0]
 
@@ -257,7 +258,7 @@ class MyUNet(nn.Module):
         #         feats = torch.cat([bg, feats, bg], 3)
         # # torch.Size([1, 1280, 10, 30])
         feats = self.base_model.extract_features(x)
-
+        print('feat:', feats)
         x = self.up1(feats, x4)
         # torch.Size([1, 512, 20, 64])
         x = self.up2(x, x3)
