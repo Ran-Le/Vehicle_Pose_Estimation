@@ -220,6 +220,7 @@ def convert_3d_to_2d(x, y, z, fx=2304.5479, fy=2305.8757, cx=1686.2379, cy=1354.
 
 
 def optimize_xy(xzy_slope,r, c, x0, y0, z0, flipped=False):
+    IMG_SHAPE=(2710,3384,3)
     def distance_fn(xyz):
         x, y, z = xyz
         xx = -x if flipped else x
