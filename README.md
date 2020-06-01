@@ -39,4 +39,4 @@
 
 #### Update (06/01/2020)
 * Finish transferring to python files
-* Submission: Private 0.034 / Public 0.033
+* Submission: Private 0.035 / Public 0.030
