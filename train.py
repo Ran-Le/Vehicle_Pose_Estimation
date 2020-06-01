@@ -36,8 +36,7 @@ def criterion(output, mask, state, size_average=True):
     loss = exist_loss + gamma * state_loss
     if not size_average:
         loss *= output.shape[0]
-    print(exist_loss)
-    print(state_loss)
+
     return exist_loss, state_loss, loss
 
 
@@ -48,10 +47,9 @@ def train(epoch, history=None):
         img_batch = img_batch.to(device)
         mask_batch = mask_batch.to(device)
         regr_batch = regr_batch.to(device)
-
+        print(img_batch)
         optimizer.zero_grad()
         output = model(img_batch)
-        print(output)
         exist_loss, state_loss, loss = criterion(output, mask_batch, regr_batch)
         if history is not None:
             history.loc[epoch + batch_idx / len(train_loader), 'train_loss'] = loss.data.cpu().numpy()
