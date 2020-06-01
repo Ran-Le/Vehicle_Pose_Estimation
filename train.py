@@ -47,7 +47,7 @@ def train(epoch, history=None):
         img_batch = img_batch.to(device)
         mask_batch = mask_batch.to(device)
         regr_batch = regr_batch.to(device)
-        print(img_batch)
+
         optimizer.zero_grad()
         output = model(img_batch)
         exist_loss, state_loss, loss = criterion(output, mask_batch, regr_batch)
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     history = pd.DataFrame()
 
     for epoch in range(epochs):
-        torch.cuda.empty_cache()
+        # torch.cuda.empty_cache()
         gc.collect()
         train(epoch, history)
         evaluate(epoch, history)
