@@ -1,30 +1,11 @@
 ##########################################################################
 # Load data
 ##########################################################################
-
-import os
-import pandas as pd
 import numpy as np
 import cv2
 from math import sin, cos
 
-PATH = './Dataset/'
-os.listdir(PATH)
 
-train = pd.read_csv(PATH + 'train.csv', nrows=40)
-# train = pd.read_csv(PATH + 'train.csv')
-# test = pd.read_csv(PATH + 'sample_submission.csv')
-test = pd.read_csv(PATH + 'sample_submission.csv',nrows=2)
-
-# Remove damaged images from the dataset
-img_damaged = ['ID_1a5a10365', 'ID_4d238ae90.jpg',
-               'ID_408f58e9f', 'ID_bb1d991f6', 'ID_c44983aeb']
-train = train[~train['ImageId'].isin(img_damaged)]
-
-camera_matrix = np.array([[2304.5479, 0,  1686.2379],
-                          [0, 2305.8757, 1354.9849],
-                          [0, 0, 1]], dtype=np.float32)
-camera_matrix_inv = np.linalg.inv(camera_matrix)
 
 
 def str2coords(s, names=['id', 'yaw', 'pitch', 'roll', 'x', 'y', 'z']):
@@ -55,6 +36,10 @@ def get_img_coords(s):
         xs: x coordinates in the image (row)
         ys: y coordinates in the image (column)
     '''
+    camera_matrix = np.array([[2304.5479, 0,  1686.2379],
+                          [0, 2305.8757, 1354.9849],
+                          [0, 0, 1]], dtype=np.float32)
+
     coords = str2coords(s)
     xs = [c['x'] for c in coords]
     ys = [c['y'] for c in coords]
@@ -126,6 +111,10 @@ def visualize(img, coords):
     y_l = 0.80
     z_l = 2.31
 
+    camera_matrix = np.array([[2304.5479, 0,  1686.2379],
+                          [0, 2305.8757, 1354.9849],
+                          [0, 0, 1]], dtype=np.float32)
+
     img = img.copy()
     for point in coords:
         # Get values
@@ -161,10 +150,13 @@ import cv2
 from scipy.optimize import minimize
 from math import sin, cos
 
+
 IMG_WIDTH = 1024
 # IMG_WIDTH = (1024*2)
 IMG_HEIGHT = IMG_WIDTH // 16 * 5
 MODEL_SCALE = 8
+
+
 
 
 def _regr_preprocess(regr_dict, flip=False):
@@ -231,9 +223,6 @@ def get_mask_and_regr(img, labels, flip=False):
 #     print(xs)
     return mask, regr
 
-DISTANCE_THRESH_CLEAR = 2
-
-
 def convert_3d_to_2d(x, y, z, fx=2304.5479, fy=2305.8757, cx=1686.2379, cy=1354.9849):
     return x * fx / z + cx, y * fy / z + cy
 
@@ -256,13 +245,13 @@ def optimize_xy(r, c, x0, y0, z0, flipped=False):
     return x_new, y_new, z_new
 
 
-def clear_duplicates(coords):
+def clear_duplicates(coords,dist_thresh_clear=2):
     for c1 in coords:
         xyz1 = np.array([c1['x'], c1['y'], c1['z']])
         for c2 in coords:
             xyz2 = np.array([c2['x'], c2['y'], c2['z']])
             distance = np.sqrt(((xyz1 - xyz2)**2).sum())
-            if distance < DISTANCE_THRESH_CLEAR:
+            if distance < dist_thresh_clear:
                 if c1['confidence'] < c2['confidence']:
                     c1['confidence'] = -1
     return [c for c in coords if c['confidence'] > 0]
@@ -299,8 +288,8 @@ def coords2str(coords, names=['yaw', 'pitch', 'roll', 'x', 'y', 'z', 'confidence
 ##########################################################################
 import torch
 import numpy as np
-from sklearn.model_selection import train_test_split
-from torch.utils.data import Dataset, DataLoader
+
+from torch.utils.data import Dataset
 
 class CarDataset(Dataset):
     """Car dataset."""
@@ -338,35 +327,6 @@ class CarDataset(Dataset):
 
         return [img, mask, regr]
 
-
-train_images_dir = PATH + 'train_images/{}.jpg'
-test_images_dir = PATH + 'test_images/{}.jpg'
-
-# df_train, df_test = train_test_split(train, test_size=0.02, random_state=231)
-# df_train, df_dev = train_test_split(df_train, test_size=0.02, random_state=231)
-
-df_train, df_dev = train_test_split(train, test_size=0.01, random_state=231)
-df_test = test
-
-
-train_dataset = CarDataset(df_train, train_images_dir, training=True)
-dev_dataset = CarDataset(df_dev, train_images_dir, training=False)
-# test_dataset = CarDataset(df_test, train_images_dir, training=False)
-test_dataset = CarDataset(df_test, test_images_dir, training=False)
-
-idx, label = train_dataset.df.to_numpy()[0]
-
-
-# BATCH_SIZE = 1
-BATCH_SIZE = 4
-
-train_loader = DataLoader(dataset=train_dataset,
-                          batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
-dev_loader = DataLoader(dataset=dev_dataset,
-                        batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
-test_loader = DataLoader(dataset=test_dataset,
-                         batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
-
 ##########################################################################
 # Setup model
 ##########################################################################
@@ -375,9 +335,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-effnet_ver = 'b0'
-dropout_rate = 0.3
-# dropout_rate = 0.0
+EFFNET_VER = 'b0'
+DROPOUT_RATE = 0.3
+# DROPOUT_RATE = 0.0
 
 
 def set_dropout(model, drop_rate):
@@ -391,7 +351,7 @@ def set_dropout(model, drop_rate):
 
 
 def effnet_dropout(drop_rate):
-    base_model0 = EfficientNet.from_pretrained(f"efficientnet-{effnet_ver}")
+    base_model0 = EfficientNet.from_pretrained(f"efficientnet-{EFFNET_VER}")
     set_dropout(base_model0, drop_rate)
     return base_model0
 
@@ -566,8 +526,8 @@ class MyUNet(nn.Module):
 
     def __init__(self, n_classes):
         super(MyUNet, self).__init__()
-        self.drop_rate = dropout_rate
-        self.base_model = EfficientNet.from_pretrained(f"efficientnet-{effnet_ver}")
+        self.drop_rate = DROPOUT_RATE
+        self.base_model = EfficientNet.from_pretrained(f"efficientnet-{EFFNET_VER}")
 #         self.base_model = effnet_dropout(drop_rate = self.drop_rate)
         self.conv0 = double_conv(3, 64)
         self.conv1 = double_conv(64, 128)
@@ -579,17 +539,17 @@ class MyUNet(nn.Module):
 #         self.conv3 = res_block(512, 1024)
         self.mp = nn.MaxPool2d(2)
 
-        if effnet_ver == 'b0':
+        if EFFNET_VER == 'b0':
             self.up1 = up(1280, 1024, 512)
-        elif effnet_ver == 'b1':
+        elif EFFNET_VER == 'b1':
             self.up1 = up(1280, 1024, 512)
-        elif effnet_ver == 'b2':
+        elif EFFNET_VER == 'b2':
             self.up1 = up(1408, 1024, 512)
-        elif effnet_ver == 'b3':
+        elif EFFNET_VER == 'b3':
             self.up1 = up(1536, 1024, 512)
-        elif effnet_ver == 'b4':
+        elif EFFNET_VER == 'b4':
             self.up1 = up(1792, 1024, 512)
-        elif effnet_ver == 'b5':
+        elif EFFNET_VER == 'b5':
             self.up1 = up(2048, 1024, 512)
 #         self.up1 = up(1536,1024, 512)
         self.up2 = up(512, 512, 256)
@@ -627,33 +587,13 @@ class MyUNet(nn.Module):
 # torch.Size([1, 8, 40, 128])
         return xout
 
-##########################################################################
-# Set up training
-##########################################################################
-import torch
-import torch.optim as optim
-from torch.optim import lr_scheduler
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# device = torch.device("cpu")
-print(device)
-
-# n_epochs = 10
-n_epochs = 2
-
-model = MyUNet(8).to(device)
-# optimizer = optim.Adam(model.parameters(), lr=0.001)
-optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.01)
-exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=max(
-    n_epochs, 10) * len(train_loader) // 3, gamma=0.1)
-
-# model = torch.load('./model_test.pth')
 
 ##########################################################################
 # Loss
 ##########################################################################
 import torch
 from tqdm import tqdm
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def criterion(prediction, mask, regr, size_average=True):
     # Binary mask loss
@@ -752,6 +692,78 @@ import pandas as pd
 import torch
 import gc
 
+
+import torch
+import torch.optim as optim
+from torch.optim import lr_scheduler
+
+
+import os
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from torch.utils.data import DataLoader
+
+PATH = './Dataset/'
+os.listdir(PATH)
+
+debugging_mode=True
+if debugging_mode:
+    train = pd.read_csv(PATH + 'train.csv', nrows=20)
+    test = pd.read_csv(PATH + 'sample_submission.csv',nrows=2)
+else:
+    train = pd.read_csv(PATH + 'train.csv')
+    test = pd.read_csv(PATH + 'sample_submission.csv')
+
+# Remove damaged images from the dataset
+img_damaged = ['ID_1a5a10365', 'ID_4d238ae90.jpg',
+               'ID_408f58e9f', 'ID_bb1d991f6', 'ID_c44983aeb']
+train = train[~train['ImageId'].isin(img_damaged)]
+
+train_images_dir = PATH + 'train_images/{}.jpg'
+test_images_dir = PATH + 'test_images/{}.jpg'
+
+# df_train, df_test = train_test_split(train, test_size=0.02, random_state=231)
+# df_train, df_dev = train_test_split(df_train, test_size=0.02, random_state=231)
+
+df_train, df_dev = train_test_split(train, test_size=0.01, random_state=231)
+df_test = test
+
+
+train_dataset = CarDataset(df_train, train_images_dir, training=True)
+dev_dataset = CarDataset(df_dev, train_images_dir, training=False)
+# test_dataset = CarDataset(df_test, train_images_dir, training=False)
+test_dataset = CarDataset(df_test, test_images_dir, training=False)
+
+idx, label = train_dataset.df.to_numpy()[0]
+
+
+# BATCH_SIZE = 1
+BATCH_SIZE = 4
+
+train_loader = DataLoader(dataset=train_dataset,
+                          batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
+dev_loader = DataLoader(dataset=dev_dataset,
+                        batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
+test_loader = DataLoader(dataset=test_dataset,
+                         batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
+
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# device = torch.device("cpu")
+# print(device)
+
+# n_epochs = 10
+n_epochs = 2
+
+model = MyUNet(8).to(device)
+# optimizer = optim.Adam(model.parameters(), lr=0.001)
+optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.01)
+exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=max(
+    n_epochs, 10) * len(train_loader) // 3, gamma=0.1)
+
+# model = torch.load('./model_test.pth')
+
+
 history = pd.DataFrame()
 
 for epoch in range(n_epochs):
@@ -767,12 +779,13 @@ import torch
 import gc
 import pandas as pd
 
-save_model = False
+save_model = True
+make_predictions = True
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 if save_model:
     torch.save(model, './model_test_org.pth')
-
-make_predictions = False
 
 if make_predictions:
 
