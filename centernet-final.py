@@ -1,28 +1,4 @@
-import numpy as np
-import pandas as pd
-import cv2
-from tqdm import tqdm
-import seaborn as sns
-from functools import reduce
-import os
-from scipy.optimize import minimize
 
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-from torch.optim import lr_scheduler
-from torch.utils.data import Dataset, DataLoader
-from torchvision import models
-from torchvision import transforms, utils
-from math import sin, cos
-
-from efficientnet_pytorch import EfficientNet
-
-import gc
 
 ##########################################################################
 # Load data
@@ -31,6 +7,7 @@ import gc
 import os
 import pandas as pd
 import numpy as np
+import cv2
 
 PATH = './Dataset/'
 os.listdir(PATH)
@@ -182,6 +159,9 @@ def visualize(img, coords):
 ##########################################################################
 # Image processing
 ##########################################################################
+import numpy as np
+import cv2
+from scipy.optimize import minimize
 
 IMG_WIDTH = 1024
 # IMG_WIDTH = (1024*2)
@@ -319,6 +299,9 @@ def coords2str(coords, names=['yaw', 'pitch', 'roll', 'x', 'y', 'z', 'confidence
 ##########################################################################
 # Generate dataset
 ##########################################################################
+import torch
+import np
+from sklearn.model_selection import train_test_split
 
 
 class CarDataset(Dataset):
@@ -389,6 +372,28 @@ test_loader = DataLoader(dataset=test_dataset,
 ##########################################################################
 # Setup model
 ##########################################################################
+import numpy as np
+import pandas as pd
+import cv2
+from tqdm import tqdm
+import seaborn as sns
+from functools import reduce
+import os
+from scipy.optimize import minimize
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+from torch.optim import lr_scheduler
+from torch.utils.data import Dataset, DataLoader
+from torchvision import models
+from torchvision import transforms, utils
+from math import sin, cos
+from efficientnet_pytorch import EfficientNet
+import gc
+
 
 effnet_ver = 'b0'
 dropout_rate = 0.3
