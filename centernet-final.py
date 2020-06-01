@@ -778,6 +778,7 @@ for epoch in range(n_epochs):
 import torch
 import gc
 import pandas as pd
+from sklearn.linear_model import LinearRegression
 
 save_model = True
 make_predictions = True
@@ -788,6 +789,25 @@ if save_model:
     torch.save(model, './model_test_org.pth')
 
 if make_predictions:
+
+    points_df = pd.DataFrame()
+    for col in ['x', 'y', 'z', 'yaw', 'pitch', 'roll']:
+        arr = []
+        for ps in train['PredictionString']:
+            coords = str2coords(ps)
+            arr += [c[col] for c in coords]
+        points_df[col] = arr
+
+    zy_slope = LinearRegression()
+    X = points_df[['z']]
+    y = points_df['y']
+    zy_slope.fit(X, y)
+
+    # Will use this model later
+    xzy_slope = LinearRegression()
+    X = points_df[['x', 'z']]
+    y = points_df['y']
+    xzy_slope.fit(X, y)
 
     torch.cuda.empty_cache()
     gc.collect()
