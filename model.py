@@ -258,6 +258,7 @@ class MyUNet(nn.Module):
         #         feats = torch.cat([bg, feats, bg], 3)
         # # torch.Size([1, 1280, 10, 30])
         feats = self.base_model.extract_features(x)
+        print("shape:", feats.shape)
         print('feat:', feats)
         x = self.up1(feats, x4)
         # torch.Size([1, 512, 20, 64])
