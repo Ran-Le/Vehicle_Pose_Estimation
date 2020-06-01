@@ -1,5 +1,6 @@
+from loading_functions import *
 from helper_functions import *
-
+from dataset_class import *
 
 
 ##########################################################################
@@ -453,7 +454,7 @@ if debugging_mode:
 else:
     n_epochs = 10
 
-read_from_saved_model=True
+read_from_saved_model=False
 
 if read_from_saved_model:
     model = torch.load('./model_test_org.pth')
@@ -484,7 +485,7 @@ import gc
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
-save_model = False
+save_model = True
 make_predictions = True
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
