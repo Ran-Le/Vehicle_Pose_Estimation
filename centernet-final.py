@@ -1,4 +1,24 @@
-
+# import numpy as np
+# import pandas as pd
+# import cv2
+# from tqdm import tqdm
+# import seaborn as sns
+# from functools import reduce
+# import os
+# from scipy.optimize import minimize
+# from sklearn.model_selection import train_test_split
+# from sklearn.linear_model import LinearRegression
+# import torch
+# import torch.nn as nn
+# import torch.nn.functional as F
+# import torch.optim as optim
+# from torch.optim import lr_scheduler
+# from torch.utils.data import Dataset, DataLoader
+# from torchvision import models
+# from torchvision import transforms, utils
+# from math import sin, cos
+# from efficientnet_pytorch import EfficientNet
+# import gc
 
 ##########################################################################
 # Load data
@@ -8,6 +28,7 @@ import os
 import pandas as pd
 import numpy as np
 import cv2
+from math import sin, cos
 
 PATH = './Dataset/'
 os.listdir(PATH)
@@ -162,6 +183,7 @@ def visualize(img, coords):
 import numpy as np
 import cv2
 from scipy.optimize import minimize
+from math import sin, cos
 
 IMG_WIDTH = 1024
 # IMG_WIDTH = (1024*2)
@@ -300,7 +322,7 @@ def coords2str(coords, names=['yaw', 'pitch', 'roll', 'x', 'y', 'z', 'confidence
 # Generate dataset
 ##########################################################################
 import torch
-import np
+import numpy as np
 from sklearn.model_selection import train_test_split
 
 
@@ -372,28 +394,10 @@ test_loader = DataLoader(dataset=test_dataset,
 ##########################################################################
 # Setup model
 ##########################################################################
-import numpy as np
-import pandas as pd
-import cv2
-from tqdm import tqdm
-import seaborn as sns
-from functools import reduce
-import os
-from scipy.optimize import minimize
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
+from efficientnet_pytorch import EfficientNet
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
-from torch.optim import lr_scheduler
-from torch.utils.data import Dataset, DataLoader
-from torchvision import models
-from torchvision import transforms, utils
-from math import sin, cos
-from efficientnet_pytorch import EfficientNet
-import gc
-
 
 effnet_ver = 'b0'
 dropout_rate = 0.3
@@ -650,6 +654,9 @@ class MyUNet(nn.Module):
 ##########################################################################
 # Set up training
 ##########################################################################
+import torch
+import torch.optim as optim
+from torch.optim import lr_scheduler
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # device = torch.device("cpu")
@@ -669,7 +676,7 @@ exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=max(
 ##########################################################################
 # Loss
 ##########################################################################
-
+import torch
 
 def criterion(prediction, mask, regr, size_average=True):
     # Binary mask loss
@@ -764,6 +771,9 @@ def evaluate_model(epoch, history=None):
 ##########################################################################
 # Training
 ##########################################################################
+import pandas as pd
+import torch
+import gc
 
 history = pd.DataFrame()
 
@@ -776,6 +786,9 @@ for epoch in range(n_epochs):
 ##########################################################################
 # Save model
 ##########################################################################
+import torch
+import gc
+import pandas as pd
 
 save_model = False
 
