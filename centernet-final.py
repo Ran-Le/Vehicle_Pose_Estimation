@@ -1,4 +1,4 @@
-from helper_functions.py import *
+from helper_functions import *
 
 
 
