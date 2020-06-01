@@ -1,25 +1,3 @@
-# import numpy as np
-# import pandas as pd
-# import cv2
-# from tqdm import tqdm
-# import seaborn as sns
-# from functools import reduce
-# import os
-# from scipy.optimize import minimize
-# from sklearn.model_selection import train_test_split
-# from sklearn.linear_model import LinearRegression
-# import torch
-# import torch.nn as nn
-# import torch.nn.functional as F
-# import torch.optim as optim
-# from torch.optim import lr_scheduler
-# from torch.utils.data import Dataset, DataLoader
-# from torchvision import models
-# from torchvision import transforms, utils
-# from math import sin, cos
-# from efficientnet_pytorch import EfficientNet
-# import gc
-
 ##########################################################################
 # Load data
 ##########################################################################
@@ -35,7 +13,8 @@ os.listdir(PATH)
 
 train = pd.read_csv(PATH + 'train.csv', nrows=40)
 # train = pd.read_csv(PATH + 'train.csv')
-test = pd.read_csv(PATH + 'sample_submission.csv')
+# test = pd.read_csv(PATH + 'sample_submission.csv')
+test = pd.read_csv(PATH + 'sample_submission.csv',nrows=2)
 
 # Remove damaged images from the dataset
 img_damaged = ['ID_1a5a10365', 'ID_4d238ae90.jpg',
@@ -62,9 +41,6 @@ def str2coords(s, names=['id', 'yaw', 'pitch', 'roll', 'x', 'y', 'z']):
         if 'id' in coords[-1]:
             coords[-1]['id'] = int(coords[-1]['id'])
     return coords
-
-inp = train['PredictionString'][0]
-
 
 def rotate(x, angle):
     x = x + angle
@@ -794,7 +770,7 @@ import pandas as pd
 save_model = False
 
 if save_model:
-    torch.save(model, './model_test.pth')
+    torch.save(model, './model_test_org.pth')
 
 make_predictions = False
 
@@ -822,5 +798,5 @@ if make_predictions:
 
     test = pd.read_csv(PATH + 'sample_submission.csv')
     test['PredictionString'] = predictions
-    test.to_csv('predictions.csv', index=False)
+    test.to_csv('predictions_org.csv', index=False)
     test.head()
