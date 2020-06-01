@@ -24,6 +24,8 @@ def criterion(output, mask, state, size_average=True):
     # existence
     pred = torch.sigmoid(output[:, 0]) # make probability of existence
     # binary classification loss
+    print('mask:', mask)
+    print('pred:', pred)
     exist_loss = -mask * torch.log(pred + 1e-12) - (1.0-mask) * torch.log(1.0 - pred + 1e-12)
     exist_loss = exist_loss.mean(0).sum()
     # state when existence
