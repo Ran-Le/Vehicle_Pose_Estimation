@@ -453,22 +453,28 @@ if debugging_mode:
 else:
     n_epochs = 10
 
-model = ConvMultiRes(8).to(device)
-# optimizer = optim.Adam(model.parameters(), lr=0.001)
-optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.01)
-exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=max(
-    n_epochs, 10) * len(train_loader) // 3, gamma=0.1)
+read_from_saved_model=True
 
-# model = torch.load('./model_test.pth')
+if read_from_saved_model:
+    model = torch.load('./model_test_org.pth')
 
 
-history = pd.DataFrame()
+else:
+    model = ConvMultiRes(8).to(device)
+    # optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.01)
+    exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=max(
+        n_epochs, 10) * len(train_loader) // 3, gamma=0.1)
 
-for epoch in range(n_epochs):
-    torch.cuda.empty_cache()
-    gc.collect()
-    train_model(epoch, history)
-    evaluate_model(epoch, history)
+
+
+    history = pd.DataFrame()
+
+    for epoch in range(n_epochs):
+        torch.cuda.empty_cache()
+        gc.collect()
+        train_model(epoch, history)
+        evaluate_model(epoch, history)
 
 ##########################################################################
 # Save model
@@ -478,7 +484,7 @@ import gc
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
-save_model = True
+save_model = False
 make_predictions = True
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -496,10 +502,6 @@ if make_predictions:
             arr += [c[col] for c in coords]
         points_df[col] = arr
 
-    zy_slope = LinearRegression()
-    X = points_df[['z']]
-    y = points_df['y']
-    zy_slope.fit(X, y)
 
     # Will use this model later
     xzy_slope = LinearRegression()
@@ -523,7 +525,7 @@ if make_predictions:
             output = model(img.to(device))
         output = output.data.cpu().numpy()
         for out in output:
-            coords = get_coord_from_pred(out, threshold=0)
+            coords = get_coord_from_pred(xzy_slope,out, threshold=0)
             s = coords_to_label(coords)
             predictions.append(s)
 

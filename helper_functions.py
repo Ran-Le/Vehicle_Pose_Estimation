@@ -219,7 +219,7 @@ def convert_3d_to_2d(x, y, z, fx=2304.5479, fy=2305.8757, cx=1686.2379, cy=1354.
     return x * fx / z + cx, y * fy / z + cy
 
 
-def optimize_xy(r, c, x0, y0, z0, flipped=False):
+def optimize_xy(xzy_slope,r, c, x0, y0, z0, flipped=False):
     def distance_fn(xyz):
         x, y, z = xyz
         xx = -x if flipped else x
@@ -249,7 +249,7 @@ def remove_neighbors(coords,dist_thresh_clear=2):
     return [c for c in coords if c['confidence'] > 0]
 
 
-def get_coord_from_pred(prediction, flipped=False, threshold=0):
+def get_coord_from_pred(xzy_slope,prediction, flipped=False, threshold=0):
     logits = prediction[0]
     regr_output = prediction[1:]
     points = np.argwhere(logits > threshold)
@@ -260,7 +260,7 @@ def get_coord_from_pred(prediction, flipped=False, threshold=0):
         pose_dict = dict(zip(col_names, regr_output[:, r, c]))
         coords.append(pose_reverse(pose_dict))
         coords[-1]['confidence'] = 1 / (1 + np.exp(-logits[r, c]))
-        coords[-1]['x'], coords[-1]['y'], coords[-1]['z'] = optimize_xy(r, c,
+        coords[-1]['x'], coords[-1]['y'], coords[-1]['z'] = optimize_xy(xzy_slope,r, c,
                                                                         coords[-1]['x'],
                                                                         coords[-1]['y'],
                                                                         coords[-1]['z'], flipped)
