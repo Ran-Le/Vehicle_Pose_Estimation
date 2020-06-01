@@ -51,6 +51,7 @@ def train(epoch, history=None):
 
         optimizer.zero_grad()
         output = model(img_batch)
+        print(output)
         exist_loss, state_loss, loss = criterion(output, mask_batch, regr_batch)
         if history is not None:
             history.loc[epoch + batch_idx / len(train_loader), 'train_loss'] = loss.data.cpu().numpy()
