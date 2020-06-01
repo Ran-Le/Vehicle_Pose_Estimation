@@ -40,8 +40,8 @@ os.listdir(PATH)
 # In[2]:
 
 
-# train = pd.read_csv(PATH + 'train.csv',nrows=400)
-train = pd.read_csv(PATH + 'train.csv')
+train = pd.read_csv(PATH + 'train.csv',nrows=400)
+# train = pd.read_csv(PATH + 'train.csv')
 test = pd.read_csv(PATH + 'sample_submission.csv')
 
 drop_images = ['ID_1a5a10365', 'ID_4d238ae90.jpg', 'ID_408f58e9f', 'ID_bb1d991f6', 'ID_c44983aeb'] 
@@ -887,8 +887,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # device = torch.device("cpu")
 print(device)
 
-n_epochs = 10
-# n_epochs = 20
+# n_epochs = 10
+n_epochs = 2
 
 model = MyUNet(8).to(device)
 # optimizer = optim.Adam(model.parameters(), lr=0.001)
@@ -1034,20 +1034,20 @@ for epoch in range(n_epochs):
 
 
 # torch.save(model.state_dict(), './model_test.pth')
-torch.save(model, './model_test.pth')
+# torch.save(model, './model_test.pth')
 
 
 # In[27]:
 
 
-history['train_loss'].iloc[100:].plot();
+# history['train_loss'].iloc[100:].plot();
 
 
 # In[28]:
 
 
 series = history.dropna()['dev_loss']
-plt.scatter(series.index, series);
+# plt.scatter(series.index, series);
 # series = history.dropna()['test_loss']
 # plt.scatter(series.index, series);
 
@@ -1168,10 +1168,10 @@ for img, _, _ in tqdm(test_loader):
 # In[33]:
 
 
-test = pd.read_csv(PATH + 'sample_submission.csv')
-test['PredictionString'] = predictions
-test.to_csv('predictions.csv', index=False)
-test.head()
+# test = pd.read_csv(PATH + 'sample_submission.csv')
+# test['PredictionString'] = predictions
+# test.to_csv('predictions.csv', index=False)
+# test.head()
 
 
 # In[ ]:
