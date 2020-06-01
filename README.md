@@ -1,8 +1,7 @@
 # CS231N_Project
 
 ## 1.Setup
-* Create a folder in CS231N_Project called "Dataset"
-* Move all data downloaded from https://www.kaggle.com/c/pku-autonomous-driving/data to "Dataset"
+* Download dataset from https://www.kaggle.com/c/pku-autonomous-driving/data and unzip to ./Dataset
 
 ## 2. Testing Logs
 #### Update (05/21/2020)
