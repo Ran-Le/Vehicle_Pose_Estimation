@@ -204,8 +204,7 @@ class MyUNet(nn.Module):
     def __init__(self, n_classes):
         super(MyUNet, self).__init__()
         self.drop_rate = dropout_rate
-        # self.base_model = EfficientNet.from_pretrained(f"efficientnet-{effnet_ver}")
-        self.base_model = EfficientNet.from_pretrained(f"efficientnet-b0")
+        self.base_model = EfficientNet.from_pretrained(f"efficientnet-{effnet_ver}")
         #         self.base_model = effnet_dropout(drop_rate = self.drop_rate)
         self.conv0 = double_conv(3, 64)
         self.conv1 = double_conv(64, 128)
