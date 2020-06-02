@@ -66,7 +66,7 @@ def get_mask_and_pose(img, labels, flip=False):
     # store the state information for each pixel
     mask = np.zeros([IMG_HEIGHT // MODEL_SCALE, IMG_WIDTH //
                      MODEL_SCALE], dtype='float32')
-    regr_names = ['x', 'y', 'z', 'yaw', 'pitch', 'roll']
+    pose_names = ['x', 'y', 'z', 'yaw', 'pitch', 'roll']
     pose = np.zeros([IMG_HEIGHT // MODEL_SCALE, IMG_WIDTH //
                      MODEL_SCALE, 7], dtype='float32')
     coords = label_to_list(labels)
@@ -129,13 +129,13 @@ def remove_neighbors(coords, dist_thresh_clear=2):
 def get_coord_from_pred(xzy_slope, prediction, flipped=False, threshold=0):
     # get the real world coordinate from the prediction in the image
     logits = prediction[0]
-    regr_output = prediction[1:]
+    pose_output = prediction[1:]
     points = np.argwhere(logits > threshold)
     col_names = sorted(
         ['x', 'y', 'z', 'yaw', 'pitch_sin', 'pitch_cos', 'roll'])
     coords = []
     for r, c in points:
-        pose_dict = dict(zip(col_names, regr_output[:, r, c]))
+        pose_dict = dict(zip(col_names, pose_output[:, r, c]))
         coords.append(pose_reverse(pose_dict))
         coords[-1]['confidence'] = 1 / (1 + np.exp(-logits[r, c]))
         coords[-1]['x'], coords[-1]['y'], coords[-1]['z'] = optimize_xy(xzy_slope, r, c,

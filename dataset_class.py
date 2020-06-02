@@ -9,6 +9,7 @@ from helper_functions import *
 
 from torch.utils.data import Dataset
 
+
 class CarDataset(Dataset):
     """Car dataset."""
 
@@ -40,7 +41,7 @@ class CarDataset(Dataset):
         img = np.rollaxis(img, 2, 0)
 
         # Get mask and regression maps
-        mask, regr = get_mask_and_pose(img0, labels, flip=flip)
-        regr = np.rollaxis(regr, 2, 0)
+        mask, pose = get_mask_and_pose(img0, labels, flip=flip)
+        pose = np.rollaxis(pose, 2, 0)
 
-        return [img, mask, regr]
+        return [img, mask, pose]
