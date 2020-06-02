@@ -6,12 +6,8 @@ import cv2
 from math import sin, cos
 
 def label_to_list(s):
-    '''
-    Input:
-        s: Label strings
-    Output:
-        list of dicts with keys from labels
-    '''
+    # s: label string
+    # return list of dicts for each car
     labels=['id', 'yaw', 'pitch', 'roll', 'x', 'y', 'z']
     res = []
     for i in np.array(s.split()).reshape([-1, 7]):
@@ -21,25 +17,15 @@ def label_to_list(s):
     return res
 
 def rotate(x, y):
-    '''
-    Input:
-        angles to add
-    Output:
-        angles from -pi to pi
-    '''
+    # return an angle between -pi to pi
     x = x + y
     x = x - (x + np.pi) // (2 * np.pi) * 2 * np.pi
     return x
 
 
 def get_img_coords(s):
-    '''
-    Input:
-        s: Label strings
-    Output:
-        xs: img row
-        ys: img col
-    '''
+    # from label string to img coordinate
+    # read from txt file
     camera_matrix = np.array([[2304.5479, 0,  1686.2379],
                           [0, 2305.8757, 1354.9849],
                           [0, 0, 1]], dtype=np.float32)
@@ -58,6 +44,7 @@ def get_img_coords(s):
 
 
 def euler_to_rot(yaw, pitch, roll):
+    # from real world coordinate angle to image coordinate
     Y = np.array([[cos(yaw), 0, sin(yaw)],
                   [0, 1, 0],
                   [-sin(yaw), 0, cos(yaw)]])
@@ -71,9 +58,10 @@ def euler_to_rot(yaw, pitch, roll):
 
 
 def draw_line(image, points):
+    # plot the 3D box for a car in red
     color = (255, 0, 0)
+    # tuning this number for car height
     h = 3000
-    carN = len(points)
     top = []
     for point in points:
         top.append([point[0], int(point[1]-h/point[2])])
@@ -93,6 +81,7 @@ def draw_line(image, points):
 
 
 def draw_points(image, points):
+    # plot the center point of car in yellow
     for (x, y, z) in points:
         cv2.circle(image, (x, y), int(800 / z), (255, 255, 0), -1)
 
@@ -100,7 +89,8 @@ def draw_points(image, points):
 
 
 def visualize(img, coords):
-
+    # plot the car in the image with a box and a center point
+    # tuning these numbers for a ideal car size
     x_l = 1.02
     y_l = 0.80
     z_l = 2.31
@@ -130,7 +120,7 @@ def visualize(img, coords):
         img_cor_points[:, 0] /= img_cor_points[:, 2]
         img_cor_points[:, 1] /= img_cor_points[:, 2]
         img_cor_points = img_cor_points.astype(int)
-        # Drawing
+        # plot
         img = draw_line(img, img_cor_points)
         img = draw_points(img, img_cor_points[-1:])
 
