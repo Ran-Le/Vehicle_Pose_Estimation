@@ -1,0 +1,6 @@
+/Dataset
+/__pycache__
+/.idea
+/.ipynb_checkpoints
+/TestFile
+*.pth
