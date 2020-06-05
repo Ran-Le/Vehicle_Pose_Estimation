@@ -1,4 +1,4 @@
-# CS231N_Project
+# U-Net with Pre-Trained Encoder for Vehicle Pose Estimation From Images
 
 ## 1.Setup
 * Download dataset from https://www.kaggle.com/c/pku-autonomous-driving/data and unzip to ./Dataset
